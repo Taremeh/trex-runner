@@ -164,6 +164,7 @@
         LDPI: {
             CACTUS_LARGE: { x: 332, y: 2 },
             CACTUS_SMALL: { x: 228, y: 2 },
+            TRUCK: { x: 2439, y: 2 },
             CLOUD: { x: 86, y: 2 },
             HORIZON: { x: 2, y: 54 },
             MOON: { x: 484, y: 2 },
@@ -176,6 +177,7 @@
         HDPI: {
             CACTUS_LARGE: { x: 652, y: 2 },
             CACTUS_SMALL: { x: 446, y: 2 },
+            TRUCK: { x: 2439, y: 2 },
             CLOUD: { x: 166, y: 2 },
             HORIZON: { x: 2, y: 104 },
             MOON: { x: 954, y: 2 },
@@ -1497,6 +1499,21 @@
      */
     Obstacle.types = [
         {
+            type: 'TRUCK',
+            width: 90,
+            height: 90,
+            yPos: 80,
+            multipleSpeed: 999,
+            minSpeed: 10,
+            minGap: 120,
+            collisionBoxes: [
+                new CollisionBox(20, 0, 60, 50)
+            ],
+            numFrames: 1,
+            frameRate: 1000 / 6,
+            speedOffset: .8
+        },
+        {
             type: 'CACTUS_SMALL',
             width: 17,
             height: 35,
@@ -1543,7 +1560,7 @@
             numFrames: 2,
             frameRate: 1000 / 6,
             speedOffset: .8
-        }
+        },
     ];
 
 
