@@ -206,6 +206,8 @@
     Runner.keycodes = {
         JUMP: { '38': 1, '32': 1 },  // Up, spacebar
         DUCK: { '40': 1 },  // Down
+        SPEED_UP: { '39': 1 },  // Right arrow
+        SPEED_DOWN: { '37': 1 },  // Left arrow
         RESTART: { '13': 1 }  // Enter
     };
 
@@ -219,6 +221,8 @@
         CLICK: 'click',
         KEYDOWN: 'keydown',
         KEYUP: 'keyup',
+        KEYRIGHT: 'keyright',
+        KEYLEFT: 'keyleft',
         MOUSEDOWN: 'mousedown',
         MOUSEUP: 'mouseup',
         RESIZE: 'resize',
@@ -569,6 +573,13 @@
                     if (this.currentSpeed < this.config.MAX_SPEED) {
                         this.currentSpeed += this.config.ACCELERATION;
                     }
+
+                    if (this.tRex.speed_manual_change != 0) {
+                        this.currentSpeed = this.currentSpeed * this.tRex.speed_manual_change;
+                        this.tRex.speed_manual_change = 0
+                        console.log("Speed Change: " + this.currentSpeed)
+                    }
+
                 } else {
                     this.gameOver();
                 }
@@ -626,6 +637,8 @@
                     case events.MOUSEUP:
                         this.onKeyUp(e);
                         break;
+                    case events.KEYLEFT:
+                    case events.KEYRIGHT:
                 }
             }.bind(this))(e.type, Runner.events);
         },
@@ -637,6 +650,8 @@
             // Keys.
             document.addEventListener(Runner.events.KEYDOWN, this);
             document.addEventListener(Runner.events.KEYUP, this);
+            document.addEventListener(Runner.events.KEYLEFT, this);
+            document.addEventListener(Runner.events.KEYRIGHT, this);
 
             if (IS_MOBILE) {
                 // Mobile only touch devices.
@@ -656,6 +671,8 @@
         stopListening: function () {
             document.removeEventListener(Runner.events.KEYDOWN, this);
             document.removeEventListener(Runner.events.KEYUP, this);
+            document.removeEventListener(Runner.events.KEYLEFT, this);
+            document.removeEventListener(Runner.events.KEYRIGHT, this);
 
             if (IS_MOBILE) {
                 this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
@@ -711,6 +728,18 @@
                     this.tRex.setDuck(true);
                 }
             }
+
+            // if keycode.SPEED_UP is pressed, then increase the speed of the game
+            if (this.playing && !this.crashed && Runner.keycodes.SPEED_UP[e.keyCode]) {
+                e.preventDefault();
+                this.tRex.speed_manual_change = 1.1
+            }
+
+            // if keycode.SPEED_UP is pressed, then increase the speed of the game
+            if (this.playing && !this.crashed && Runner.keycodes.SPEED_DOWN[e.keyCode]) {
+                e.preventDefault();
+                this.tRex.speed_manual_change = 0.9
+            }
         },
 
 
@@ -719,6 +748,7 @@
          * @param {Event} e
          */
         onKeyUp: function (e) {
+            console.log("Key Up")
             var keyCode = String(e.keyCode);
             var isjumpKey = Runner.keycodes.JUMP[keyCode] ||
                 e.type == Runner.events.TOUCHEND ||
@@ -737,7 +767,7 @@
                     (deltaTime >= this.config.GAMEOVER_CLEAR_TIME &&
                         Runner.keycodes.JUMP[keyCode])) {
                     this.restart();
-                }
+                } 
             } else if (this.paused && isjumpKey) {
                 // Reset the jump state
                 this.tRex.reset();
@@ -1551,6 +1581,9 @@
         this.jumpCount = 0;
         this.jumpspotX = 0;
 
+        this.speed_manual_coefficient = 1;
+        this.speed_manual_change = false;
+
         this.init();
     };
 
@@ -1568,6 +1601,7 @@
         INTRO_DURATION: 1500,
         MAX_JUMP_HEIGHT: 30,
         MIN_JUMP_HEIGHT: 30,
+        SPEED_MANUAL_CHANGE_COEFFICIENT: 1.1,
         SPEED_DROP_COEFFICIENT: 3,
         SPRITE_WIDTH: 262,
         START_X_POS: 50,
